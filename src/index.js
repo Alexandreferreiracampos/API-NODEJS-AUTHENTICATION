@@ -8,6 +8,7 @@ app.use(bodyParser.urlencoded({ extends:false}));
 app.use(express.json());
 
 require('./controllers/authController')(app);
+require('./controllers/projectController')(app);
 
 //iniciando servidor na porta 3333
 const port = 3333;
