@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth.json');
 const crypto = require('crypto');
+const mailer = require('../../modules/mailer');
 
 const router = express.Router();
 
@@ -84,17 +85,25 @@ router.post('/forgot_password', async (req, res)=>{
             passwordResetToken: token,
             passwordResetExpires: now,
            }
-       })
+       });
 
-       res.send()
+       mailer.sendMail({
+           to: email,
+           from: 'alexandre@meusprojetosdev.com.br',
+           template: 'auth/forgotPassword',
+           context: {token},
 
-     console.log(token, now);
+       },(err)=>{
+           if(err)
+           console.log(err)
+           return res.status(400).send({error: 'Cannot send forgot password email'});
+
+       return res.send();
+    })
+     
     }catch(err){
         res.status(400).send({'error': 'Erro on forgot password, try again'});
     }
-})
-
-router.post('/')
-
+});
 
 module.exports = app => app.use('/auth', router);

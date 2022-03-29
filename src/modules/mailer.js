@@ -1,13 +1,12 @@
-const { path } = require('express/lib/application');
+const path = require('path');
 const nodemailer = require('nodemailer');
 require("dotenv").config();
-const hsb = require('nodemailer-express-handlebars');
+const hbs = require('nodemailer-express-handlebars');
 
 
 const transport = nodemailer.createTransport({
         host: process.env.SMTP_SERVER,
         port: parseInt(process.env.SMTP_PORT),
-        secure: false, 
         auth: {
             user: process.env.SMTP_USERNAME,
             pass: process.env.SMTP_PASSWORD
@@ -17,7 +16,7 @@ const transport = nodemailer.createTransport({
 
 transport.use('compile', hbs({
     viewEngine: 'handlebars',
-    viewPath: path.resolve('./src/resources/mail/'),
+    viewPath: path.resolve('./src/resources/mail'),
     extName: '.html',
 }));
 
