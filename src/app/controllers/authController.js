@@ -64,22 +64,29 @@ router.post('/authenticate', async (req, res)=>{
     res.send({user, token: generateToken({id: user.id})});
 })
 
+//reset de senha
 router.post('/forgot_password', async (req, res)=>{
+    //captura o email
     const {email} = req.body;
 
     try{
-
+        //salva o email na variavel user
         const user = await User.findOne({ email });
-
+        
+        //verificar se o email existe
         if(!user){
             return res.status(400).send({error:'User not found'})
         }
-
+       
+        //criar um novo tokem para redefinir senha
        const token = crypto.randomBytes(20).toString('hex');
-
+       
+       //salva a data para expiração do token
        const now = new Date();
+       //add 1 hora na expiração da senha apartir da data criada
        now.setHours(now.getHours() + 1);
 
+       //salva do o token e a data 
        await User.findByIdAndUpdate(user.id, {
            '$set':{
             passwordResetToken: token,
@@ -87,15 +94,18 @@ router.post('/forgot_password', async (req, res)=>{
            }
        });
 
+       //função para enviar o e-mail
        mailer.sendMail({
            to: email,
            from: 'alexandre@gmail.com',
            template: 'auth/forgotPassword',
+           subject: 'Redefinir Senha',
            context: {token},
 
        },(err)=>{
+
            if(err)
-           return res.status(400).send({error: 'Cannot send forgot password email'});
+            return res.status(400).send({error: 'Cannot send forgot password email'}); 
 
        return res.status(200).send({Ok:'Password recovery email sent successfully.'});
     })
