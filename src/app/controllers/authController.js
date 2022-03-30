@@ -89,16 +89,15 @@ router.post('/forgot_password', async (req, res)=>{
 
        mailer.sendMail({
            to: email,
-           from: 'alexandre@meusprojetosdev.com.br',
+           from: 'alexandre@gmail.com',
            template: 'auth/forgotPassword',
            context: {token},
 
        },(err)=>{
            if(err)
-           console.log(err)
            return res.status(400).send({error: 'Cannot send forgot password email'});
 
-       return res.send();
+       return res.status(200).send({Ok:'Password recovery email sent successfully.'});
     })
      
     }catch(err){
