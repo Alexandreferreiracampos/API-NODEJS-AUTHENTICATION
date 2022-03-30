@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth.json');
 const crypto = require('crypto');
 const mailer = require('../../modules/mailer');
+const { resolveSoa } = require('dns');
 
 const router = express.Router();
 
@@ -64,14 +65,16 @@ router.post('/authenticate', async (req, res)=>{
     res.send({user, token: generateToken({id: user.id})});
 })
 
-//reset de senha
+//Enviar e-mail para reset de senha
 router.post('/forgot_password', async (req, res)=>{
     //captura o email
     const {email} = req.body;
 
     try{
-        //salva o email na variavel user
-        const user = await User.findOne({ email });
+        //salva os dados referente ao email na variavel user
+        const user = await User.findOne({ email })
+
+        const name = user.name
         
         //verificar se o email existe
         if(!user){
@@ -86,7 +89,7 @@ router.post('/forgot_password', async (req, res)=>{
        //add 1 hora na expiração da senha apartir da data criada
        now.setHours(now.getHours() + 1);
 
-       //salva do o token e a data 
+       //salva o token e a data 
        await User.findByIdAndUpdate(user.id, {
            '$set':{
             passwordResetToken: token,
@@ -100,7 +103,7 @@ router.post('/forgot_password', async (req, res)=>{
            from: 'alexandre@gmail.com',
            template: 'auth/forgotPassword',
            subject: 'Redefinir Senha',
-           context: {token},
+           context: {token,name}
 
        },(err)=>{
 
@@ -111,8 +114,43 @@ router.post('/forgot_password', async (req, res)=>{
     })
      
     }catch(err){
-        res.status(400).send({'error': 'Erro on forgot password, try again'});
+        res.status(400).send({error: 'Erro on forgot password, try again'});
     }
 });
+
+//reset de senha
+router.post('/reset_password', async (req, res)=>{
+    //capturar os dados para reset de senha
+    const {email, token, password} = req.body;
+    
+    try{
+        //salva os dados referente ao email na variavel user
+        const user = await User.findOne({ email })
+        .select('+passwordResetToken passwordResetExpires');
+        
+    //validar token
+    if(token !== user.passwordResetToken)
+        return res.status(400).send({error: 'Token invalid'});
+    
+    //salvar a data na variavel now
+    const now = new Date();
+    
+    //verificar se a data expirou
+    if(now > user.passwordResetExpires)
+     return res.status(400).send({error: 'Token experid'});
+
+    //pegar a senha da variavel password
+    user.password = password;
+    
+    //salvar os dados capturados
+    user.save();
+
+    return res.status(200).send({ok:"Password successfully changed"});
+
+    }catch (err){
+        res.status(400).send({error: "Cannot reset password, try again"});
+    }
+})
+
 
 module.exports = app => app.use('/auth', router);
