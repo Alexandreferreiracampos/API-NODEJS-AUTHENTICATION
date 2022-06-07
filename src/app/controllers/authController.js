@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth.json');
 const crypto = require('crypto');
 const mailer = require('../../modules/mailer');
-const { resolveSoa } = require('dns');
+
 
 const router = express.Router();
 
@@ -133,19 +133,23 @@ router.post('/reset_password', async (req, res)=>{
         return res.status(400).send({error: 'Token invalid'});
     
     //salvar a data na variavel now
-    const now = new Date();
+    const now = Date();
+    
     
     //verificar se a data expirou
     if(now > user.passwordResetExpires)
-     return res.status(400).send({error: 'Token experid'});
-
+        return res.status(400).send({error: 'Token experid'});
+        
+    
     //pegar a senha da variavel password
     user.password = password;
+    //user.beat = '12121';
     
     //salvar os dados capturados
     user.save();
 
     return res.status(200).send({ok:"Password successfully changed"});
+
 
     }catch (err){
         res.status(400).send({error: "Cannot reset password, try again"});

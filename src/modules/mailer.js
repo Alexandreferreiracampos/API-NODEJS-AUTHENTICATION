@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 require("dotenv").config();
 const hbs = require('nodemailer-express-handlebars');
 
-
+//configurar e-mail de envio
 const transport = nodemailer.createTransport({
         host: process.env.SMTP_SERVER,
         port: parseInt(process.env.SMTP_PORT),
@@ -13,6 +13,7 @@ const transport = nodemailer.createTransport({
         }
      
 });
+
 
 transport.use('compile', hbs({
     viewEngine: {
