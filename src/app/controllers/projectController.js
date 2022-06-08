@@ -4,6 +4,7 @@ const authMiddleware = require('../middlewares/auth');
 const User = require('../model/Usuarios');
 const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth.json');
+const {v4 : uuid} = require("uuid");
 
 //verificar se passou pelo Middleware
 router.use(authMiddleware);
@@ -37,17 +38,14 @@ router.post('/dot_beat', async (req, res)=>{
         const now = Date()
 
         if(user.beat == null){
-            id = 0
             data = [{
-                id: id,
+                id: uuid(),
                 beat: now
             }]
         }else{
             data = user.beat
-            id = user.beat.length + 1
-
             data.push({
-                id: id,
+                id: uuid(),
                 beat: now
             })
         }
