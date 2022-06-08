@@ -19,17 +19,21 @@ function generateToken(params = {}){
 
 
 router.get('/', (req, res)=>{
-    res.send({ok: true, userId: req.token});
+    res.send({ok: true, userId: req.userId});
 });
 
 //Salvar batida de ponto
 router.post('/dot_beat', async (req, res)=>{
     //capturar os dados para reset de senha
-    const {email} = req.body;
+    const _id = req.userId;
+
+    console.log(_id)
     
     try {
         //salva os dados referente ao email na variavel user
-        const user = await User.findOne({email})
+
+        const user = await User.findOne({_id});
+        
 
         const now = Date()
 
