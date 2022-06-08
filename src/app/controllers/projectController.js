@@ -33,21 +33,21 @@ router.post('/dot_beat', async (req, res)=>{
         //salva os dados referente ao email na variavel user
 
         const user = await User.findOne({_id});
-        
 
         const now = Date()
 
-
         if(user.beat == null){
+            id = 0
             data = [{
-                id: '0',
+                id: id,
                 beat: now
             }]
         }else{
             data = user.beat
+            id = user.beat.length + 1
 
             data.push({
-                id: '0',
+                id: id,
                 beat: now
             })
         }
