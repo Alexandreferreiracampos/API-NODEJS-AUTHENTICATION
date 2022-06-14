@@ -25,32 +25,40 @@ router.get('/', (req, res)=>{
 
 //Salvar batida de ponto
 router.post('/dot_beat', async (req, res)=>{
+
+    const {beatOff} = req.body;
     //capturar os dados para reset de senha
     const _id = req.userId;
 
     console.log(_id)
     
     try {
-        //salva os dados referente ao email na variavel user
+        //salva os dados referente ao _id na variavel user
 
         const user = await User.findOne({_id});
 
         const now = Date()
 
-        if(user.beat == null){
-            data = [{
-                id: uuid(),
-                beat: now
-            }]
-        }else{
-            data = user.beat
-            data.push({
-                id: uuid(),
-                beat: now
-            })
-        }
+        if(beatOff == null ){
 
-        //salvar os dados capturados
+            if(user.beat == null){
+                data = [{
+                    id: uuid(),
+                    dotBeat:'Registro-Online',
+                    beat: now
+                }]
+            }else{
+                data = user.beat
+                data.push({
+                    id: uuid(),
+                    dotBeat:'Registro-Online',
+                    beat: now
+                })
+            }
+
+            console.log('Ponto registrado pelo Servidor')
+
+             //salvar os dados capturados
         await User.findByIdAndUpdate(user.id, {
             '$set': {
                 beat: data,
@@ -60,6 +68,40 @@ router.post('/dot_beat', async (req, res)=>{
         return res.status(200).send({
             user
         });
+
+        }else{
+            if(user.beat == null){
+                data = [{
+                    id: uuid(),
+                    dotBeat:'Registro-Offline',
+                    beat: beatOff
+                }]
+            }else{
+                data = user.beat
+                data.push({
+                    id: uuid(),
+                    dotBeat:'Registro-Offline',
+                    beat: beatOff
+                })
+            }
+
+            console.log('Ponto registrado pelo cliente offiline')
+
+             //salvar os dados capturados
+        await User.findByIdAndUpdate(user.id, {
+            '$set': {
+                beat: data,
+            }
+        });
+
+        return res.status(200).send({
+            user
+        });
+
+        }
+
+    
+       
 
     } catch (err) {
         res.status(400).send({

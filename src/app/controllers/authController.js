@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const authConfig = require('../../config/auth.json');
 const crypto = require('crypto');
 const mailer = require('../../modules/mailer');
+const cors = require('cors')
 
 
 const router = express.Router();
@@ -22,7 +23,7 @@ router.post('/register', async (req, res)=>{
         
         //verificar se o email já existe
         if(await User.findOne({ email }))
-            return res.status(400).send({Erro: "Usuário já existe."});
+            return res.status(400).send({Error: "Usuário já existe."});
         
          //usuario cadastrado
         const user = await User.create(req.body);
@@ -49,7 +50,7 @@ router.post('/authenticate', async (req, res)=>{
     
     //validar usuario
     if(!user){
-        return res.status(400).send({erro: 'Usuário não cadastrado.'})
+        return res.status(400).send({error: 'Usuário não cadastrado.'})
     }
     
     //validar senha

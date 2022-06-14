@@ -20,7 +20,6 @@ const UserSchema = new mongoose.Schema({
     beat:{
         type: JSON,
         },
-
     passwordResetToken:{
         type: String,
         select: false,
